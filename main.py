@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import os
-from model import getOrderSentenceBert
+from model import getOrderSentenceBert,getOrderLDA
 
 dataset=["antv7","derbyv1","derbyv2","derbyv3","derbyv5"]
 
@@ -30,7 +30,7 @@ for d in dataset:
             testCase=testCase+l.strip()+" "
         testCase=testCase.strip()
         testCases.append(testCase)
-    order=getOrderSentenceBert(testCases)
+    order=getOrderLDA(testCases)
     faultMatrix=[faultMatrix[i] for i in order]
 
     n=len(faultMatrix)
