@@ -1,18 +1,29 @@
 import numpy as np
 import random
 import os
-from model import getOrderSentenceBert,getOrderLDA
+from model import getOrderSentenceBert,getOrderLDA,getOrderCodeBert
 
 dataset=["antv7","derbyv1","derbyv2","derbyv3","derbyv5"]
 
-def getAPFD(TF,n,m):
-    ans=1
-    for i in range(m):
-        ans=ans-(1/(n*m))*TF[i]
-    ans+=1/(2*n)
-    return ans
+def readRaw(d):
+    faultMatrix=[]
+    f=open("./"+d+"/test_matrix.dat")
+    lines=f.readlines()
+    for l in lines:
+        vec=l.strip().split(' ')
+        vec=[int(v) for v in vec]
+        faultMatrix.append(vec)
+    testCaseNames=os.listdir("./"+d+"/raw")
+    testCases=[]
+    for n in testCaseNames:
+        testCase_f=open("./"+d+"/raw/"+n)
+        testCase=testCase_f.read()
+        import re
+        testCase = re.sub(r'/\*(.|[\r\n])*?\*/', "", testCase)
+        testCases.append(testCase)
+    return faultMatrix,testCases
 
-for d in dataset:
+def readBow(d):
     faultMatrix=[]
     f=open("./"+d+"/test_matrix.dat")
     lines=f.readlines()
@@ -30,7 +41,18 @@ for d in dataset:
             testCase=testCase+l.strip()+" "
         testCase=testCase.strip()
         testCases.append(testCase)
-    order=getOrderLDA(testCases)
+    return faultMatrix,testCases
+
+def getAPFD(TF,n,m):
+    ans=1
+    for i in range(m):
+        ans=ans-(1/(n*m))*TF[i]
+    ans+=1/(2*n)
+    return ans
+
+for d in dataset:
+    faultMatrix,testCases=readRaw(d)
+    order=getOrderCodeBert(testCases)
     faultMatrix=[faultMatrix[i] for i in order]
 
     n=len(faultMatrix)

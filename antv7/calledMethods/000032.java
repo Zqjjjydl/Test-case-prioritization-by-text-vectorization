@@ -1,0 +1,4 @@
+DOMElementWriter.encode
+DOMElementWriter.encodedata
+DOMElementWriter.isLegalCharacter
+DOMElementWriter.isReference

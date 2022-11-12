@@ -1,0 +1,14 @@
+BuildException.getMessage
+FileNameMapper.mapFileName
+Mapper.getImplementation
+Mapper.MapperType
+Mapper.setFrom
+Mapper.setRefid
+Mapper.setTo
+Mapper.setType
+.MapperType
+MapperType.setValue
+Project.addReference
+Project.setBasedir
+String.length
+TaskdefForCopyTest.setUp

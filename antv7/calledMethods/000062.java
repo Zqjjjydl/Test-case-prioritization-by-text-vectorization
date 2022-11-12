@@ -1,0 +1,2 @@
+FileUtils.contentEquals
+FileUtils.newFileUtils

@@ -221,6 +221,27 @@ def getDistanceLDA(sentences):
             distances[j][i]=distances[i][j]
     return distances
 
+def getDistanceCodeBert(sentences):
+    from transformers import AutoTokenizer, AutoModel
+    import torch
+    tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
+    model = AutoModel.from_pretrained("microsoft/codebert-base")
+    embeddings = []
+    for text in sentences:
+        nl_tokens=tokenizer.tokenize("")[0:500]
+        code_tokens=tokenizer.tokenize(text)[0:500]
+        tokens=[tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
+        tokens_ids=tokenizer.convert_tokens_to_ids(tokens)
+        context_embeddings=model(torch.tensor(tokens_ids)[None,:])[0]
+        context_embeddings=context_embeddings.squeeze(0)[0].tolist()
+        embeddings.append(context_embeddings)
+    distances=[[0 for j in range(len(sentences))] for i in range(len(sentences))]
+    for i in range(len(sentences)):
+        for j in range(len(sentences)):
+            distances[i][j]=angularDis(embeddings[i],embeddings[j])
+            distances[j][i]=distances[i][j]
+    return distances
+
 def greedySearch(distances):
     order=[randrange(0,len(distances))]
     remainIdx=[i for i in range(len(distances)) if i not in order]
@@ -251,6 +272,13 @@ def getOrderSentenceBert(sentences):
 def getOrderLDA(sentences):
 
     distances=getDistanceLDA(sentences)
+    order=greedySearch(distances)
+    
+    return order
+
+def getOrderCodeBert(sentences):
+
+    distances=getDistanceCodeBert(sentences)
     order=greedySearch(distances)
     
     return order

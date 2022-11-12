@@ -1,0 +1,3 @@
+BuildException.getMessage
+BuildException.indexOf
+project.getProperty
