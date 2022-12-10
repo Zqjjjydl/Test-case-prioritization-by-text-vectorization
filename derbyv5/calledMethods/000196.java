@@ -1,4 +1,0 @@
-File.separator
-TestConfiguration.getCurrent
-TestConfiguration.getPort
-TestConfiguration.runningInDerbyHarness

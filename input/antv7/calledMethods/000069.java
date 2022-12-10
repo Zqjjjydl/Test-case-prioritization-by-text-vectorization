@@ -1,0 +1,10 @@
+.getAbsolutePath
+getProject.resolveFile
+getProject.setInputHandler
+JavaEnvUtils.isJavaVersion
+JavaEnvUtils.JAVA_1_1
+project.getProperty
+PropertyFileInputHandler.FILE_NAME_KEY
+String.replace
+System.getProperties
+System.put

@@ -1,0 +1,2 @@
+project.replaceProperties
+project.setProperty

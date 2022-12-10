@@ -1,9 +1,0 @@
-DirectoryScanner.getIncludedFiles
-FileSet.getDirectoryScanner
-getResultFiles.size
-Hashtable.containsKey
-Hashtable.put
-Hashtable.size
-Project.getReference
-String.indexOf
-String.length

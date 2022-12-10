@@ -1,4 +1,0 @@
-Contains.eval
-Contains.setCasesensitive
-Contains.setString
-Contains.setSubstring

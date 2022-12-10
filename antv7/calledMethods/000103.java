@@ -1,1 +1,0 @@
-JUnitVersionHelper.getTestCaseName

@@ -1,3 +1,0 @@
-FileUtils.contentEquals
-FileUtils.newFileUtils
-getProject.resolveFile

@@ -1,2 +1,0 @@
-Commandline.translateCommandline
-String.length

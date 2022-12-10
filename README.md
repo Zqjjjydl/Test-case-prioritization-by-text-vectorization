@@ -1,10 +1,14 @@
 # Test-case-prioritization-by-text-vectorization
-Project for software testing course
+Project for software testing course.
 
-To run CodeBERT text case prioritization, download pretrained model, unzip it and put it under folder `model`. Then run:
+To run codeBERT test case prioritization:
+- Download pretrained model, unzip it and put it under folder `model`.
+- Satisfy package versions in requirements.txt
+- Then run:
 
 ```
-python blackbox.py
+cd blackBox
+python blackbox.py <algorithm>
 ```
 
 The pretrained model has been sent to TA via email because of its large size.
@@ -14,7 +18,8 @@ Also, other black box baseline methods can be run by changing line 55 in blackbo
 To run white box baseline methods, run:
 
 ```
-python ./whiteBox/prioritize.py
+cd whiteBox
+python whiteBox/prioritize.py <metric> <algorithm>
 ```
 
 To train a new CodeBERT, run:

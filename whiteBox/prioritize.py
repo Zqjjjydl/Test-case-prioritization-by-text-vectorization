@@ -1,16 +1,14 @@
+import sys
+
 import competitors
 import metric
 
-usage = """USAGE: python py/prioritize.py <dataset> <entity> <algorithm> <repetitions>
+usage = """USAGE: python py/prioritize.py <entity> <algorithm>
 OPTIONS:
-  <dataset>: test suite to prioritize.
-    options: closure_v0, lang_v0, math_v0, chart_v0, time_v0
   <entity>: use function/branch/line coverage information.
     options: function, branch, line
   <algorithm>: algorithm used for prioritization.
     options: ART-D, ART-F
-  <repetitions>: number of prioritization to compute.
-    options: positive integer value, e.g. 50
 """
 
 def wboxPrioritization(name, prog, v, ctype, repeats):
@@ -69,13 +67,11 @@ def prioritize(prog_v, entity, algname, repeats):
     return wboxPrioritization(algname, prog, v, entity, repeats)
 
 if __name__ == "__main__":
-
-    prog_v = "chart_v0"
-    entity = "line"
-    algname = "ART-D"
-    repeats = "1"
-
-    order, time, apfd = prioritize(prog_v, entity, algname, repeats)
-    print("order: ", order)
-    print("time: ", time)
-    print("apfd:", apfd)
+    entity, algname = sys.argv[1:]
+    datasets = ["chart_v0", "closure_v0", "lang_v0", "math_v0", "time_v0"]
+    for prog_v in datasets:
+        order, time, apfd = prioritize(prog_v, entity, algname, 1)
+        # print("order: ", order)
+        print("")
+        print("time: ", time)
+        print("APFD for " + prog_v + " :", apfd)
