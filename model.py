@@ -20,7 +20,6 @@ from dataloader import trainDataset
 from torch.utils.data import Dataset, DataLoader
 
 
-#prodLDA是抄的
 class ProdLDA(nn.Module):
     def __init__(self, net_arch):
         super(ProdLDA, self).__init__()
@@ -106,37 +105,38 @@ class ProdLDA(nn.Module):
         else:
             return loss
 
-def trainProdLDA(model):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--en1-units',        type=int,   default=100)
-    parser.add_argument('-s', '--en2-units',        type=int,   default=100)
-    parser.add_argument('-dt', '--dt',        type=int,   default=300)
-    parser.add_argument('-dw', '--dw',        type=int,   default=300)
-    parser.add_argument('-dh', '--dh',        type=int,   default=300)
-    parser.add_argument('-t', '--num-topic',        type=int,   default=30)
-    parser.add_argument('-em', '--num-emotion',        type=int,   default=6)
-    parser.add_argument('-b', '--batch-size',       type=int,   default=20)
-    parser.add_argument('-o', '--optimizer',        type=str,   default='Adam')
-    parser.add_argument('-r', '--learning-rate',    type=float, default=0.003)
-    parser.add_argument('-wd', '--weight-decay',    type=float, default=5e-5)
-    parser.add_argument('-lam', '--lambd',    type=float, default=0.03)
-    parser.add_argument('-sl', '--max-sentencelen',         type=int, default=19)
-    parser.add_argument('-e', '--num-epoch',        type=int,   default=800)
-    parser.add_argument('-q', '--init-mult',        type=float, default=1.0)    # multiplier in initialization of decoder weight
-    parser.add_argument('-v', '--variance',         type=float, default=0.995)  # default variance in prior normal
-    parser.add_argument('--nogpu',                  action='store_true')        # do not use GPU acceleration
-    parser.add_argument('-m', '--momentum',         type=float, default=0.99)
-    args = parser.parse_args()
+class MLPLayer(nn.Module):
+    """
+    Head for getting sentence representations over RoBERTa/BERT's CLS representation.
+    """
+
+    def __init__(self, hidden_size):
+        super().__init__()
+        self.dense1 = nn.Linear(hidden_size, hidden_size)
+        self.activation1=nn.ReLU()
+        self.dense2 = nn.Linear(hidden_size, hidden_size)
+        self.activation2=nn.ReLU()
+        self.dense3 = nn.Linear(hidden_size, hidden_size)
+
+    def forward(self, features):
+        x = self.dense1(features)
+        self.activation1(x)
+        x = self.dense2(x)
+        self.activation2(x)
+        x = self.dense3(x)
+        return x
+
+def trainProdLDA(model,common_corpus,args):
+
     if torch.cuda.is_available():
         device = torch.device('cuda')
     else:
         device = torch.device('cpu')
 
-    trainDataDealer = trainDataset(args)
+    trainDataDealer = trainDataset(common_corpus,args.num_input)
     train_loader = DataLoader(dataset=trainDataDealer,
                           batch_size=args.batch_size,
                           shuffle=False)
-    model=ProdLDA(model)
     model=model.to(device)
     optimizer=torch.optim.Adam(model.parameters(),lr=args.learning_rate,weight_decay=args.weight_decay,betas=(args.momentum, 0.999))
     progressive = tqdm(range(args.num_epoch), total=args.num_epoch,
@@ -149,15 +149,13 @@ def trainProdLDA(model):
         model.zero_grad()
         for i, data in enumerate(train_loader):
 
-            bow,dataInIdx,target=data
+            bow=data
             bow=bow.to(device)
-            bow=bow.double()
-            dataInIdx=dataInIdx.to(device)
-            target=target.to(device)
+            # bow=bow.double()
             
-            l_ntm=model(bow,True)
+            l_ntm=model(bow,True,True)
 
-            recon,vt,loss=l_ntm
+            recon,loss,vt=l_ntm
             # +args.lambd*l_ntm
 
             loss_list.append(loss.item())
@@ -165,9 +163,27 @@ def trainProdLDA(model):
             loss.backward()
             optimizer.step()
             model.zero_grad()
-        avg_loss=torch.mean(torch.tensor(loss_list)).item()
-        print("avg_loss",avg_loss)
-    return model
+        # avg_loss=torch.mean(torch.tensor(loss_list)).item()
+        # print("avg_loss",avg_loss)
+    ans=[]
+    for i, data in enumerate(train_loader):
+
+            bow=data
+            bow=bow.to(device)
+            # bow=bow.double()
+            
+            l_ntm=model(bow,True,True)
+
+            recon,loss,vt=l_ntm
+            ans.append(vt)
+            # +args.lambd*l_ntm
+
+            # loss_list.append(loss.item())
+            # loss.to(device)
+            # loss.backward()
+            # optimizer.step()
+            model.zero_grad()
+    return model,ans
 
 def angularDis(v1,v2):
     cosSim = 1 - spatial.distance.cosine(v1,v2)
@@ -187,14 +203,33 @@ def getDistanceSentenceBert(sentences):
     return distances
 
 def getDistanceProdLDA(sentences):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--en1-units',        type=int,   default=100)
+    parser.add_argument('-s', '--en2-units',        type=int,   default=100)
+    parser.add_argument('-dt', '--dt',        type=int,   default=300)
+    parser.add_argument('-dw', '--dw',        type=int,   default=300)
+    parser.add_argument('-dh', '--dh',        type=int,   default=300)
+    parser.add_argument('-t', '--num-topic',        type=int,   default=30)
+    parser.add_argument('-em', '--num-emotion',        type=int,   default=6)
+    parser.add_argument('-b', '--batch-size',       type=int,   default=20)
+    parser.add_argument('-o', '--optimizer',        type=str,   default='Adam')
+    parser.add_argument('-r', '--learning-rate',    type=float, default=0.003)
+    parser.add_argument('-wd', '--weight-decay',    type=float, default=5e-5)
+    parser.add_argument('-lam', '--lambd',    type=float, default=0.03)
+    parser.add_argument('-sl', '--max-sentencelen',         type=int, default=19)
+    parser.add_argument('-e', '--num-epoch',        type=int,   default=10)
+    parser.add_argument('-q', '--init-mult',        type=float, default=1.0)    # multiplier in initialization of decoder weight
+    parser.add_argument('-v', '--variance',         type=float, default=0.995)  # default variance in prior normal
+    parser.add_argument('--nogpu',                  action='store_true')        # do not use GPU acceleration
+    parser.add_argument('-m', '--momentum',         type=float, default=0.99)
+    args = parser.parse_args()
+    
     sentences=[s.split(" ") for s in sentences]
     common_dictionary = Dictionary(sentences)
-    common_corpus = [common_dictionary.doc2bow(text) for text in common_texts]
-    lda = ProdLDA()
-    lda=trainProdLDA(lda,common_corpus)
-    embeddings = []
-    for doc in common_corpus:
-        embeddings.append(lda[doc])
+    args.num_input=len(common_dictionary)
+    common_corpus = [common_dictionary.doc2bow(text) for text in sentences]
+    lda = ProdLDA(args)
+    lda,embeddings=trainProdLDA(lda,common_corpus,args)
 
     distances=[[0 for j in range(len(sentences))] for i in range(len(sentences))]
     for i in range(len(sentences)):
@@ -207,7 +242,7 @@ def getDistanceLDA(sentences):
     sentences=[s.split(" ") for s in sentences]
     common_dictionary = Dictionary(sentences)
     common_corpus = [common_dictionary.doc2bow(text) for text in sentences]
-    lda = LdaModel(common_corpus, num_topics=10)
+    lda = LdaModel(common_corpus, num_topics=1)
     embeddings = []
     for doc in common_corpus:
         tempEmbed=lda.get_document_topics(doc,minimum_probability=0)
@@ -225,7 +260,10 @@ def getDistanceCodeBert(sentences):
     from transformers import AutoTokenizer, AutoModel
     import torch
     tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
-    model = AutoModel.from_pretrained("microsoft/codebert-base")
+    model = AutoModel.from_pretrained("./model/codebert-base")
+    MLP=MLPLayer(768)
+    MLP.load_state_dict(torch.load("./model/MLP.pt"))
+    MLP=MLP.to(torch.device('cuda'))
     embeddings = []
     for text in sentences:
         nl_tokens=tokenizer.tokenize("")[0:500]
@@ -233,17 +271,19 @@ def getDistanceCodeBert(sentences):
         tokens=[tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
         tokens_ids=tokenizer.convert_tokens_to_ids(tokens)
         context_embeddings=model(torch.tensor(tokens_ids)[None,:])[0]
-        context_embeddings=context_embeddings.squeeze(0)[0].tolist()
+        context_embeddings=context_embeddings.squeeze(0)[0].to(torch.device('cuda'))
+        context_embeddings=MLP(context_embeddings).tolist()
         embeddings.append(context_embeddings)
     distances=[[0 for j in range(len(sentences))] for i in range(len(sentences))]
     for i in range(len(sentences)):
         for j in range(len(sentences)):
             distances[i][j]=angularDis(embeddings[i],embeddings[j])
             distances[j][i]=distances[i][j]
-    return distances
+    
+    return distances,embeddings
 
 def greedySearch(distances):
-    order=[randrange(0,len(distances))]
+    order=[4]
     remainIdx=[i for i in range(len(distances)) if i not in order]
     while len(remainIdx)>0:
         maxIdx=remainIdx[0]
@@ -275,10 +315,27 @@ def getOrderLDA(sentences):
     order=greedySearch(distances)
     
     return order
+def getOrderProdLDA(sentences):
+
+    distances=getDistanceProdLDA(sentences)
+    order=greedySearch(distances)
+    
+    return order
 
 def getOrderCodeBert(sentences):
 
-    distances=getDistanceCodeBert(sentences)
+    distances,embeddings=getDistanceCodeBert(sentences)
     order=greedySearch(distances)
     
+    return order,embeddings
+
+def embedding2Order(embeddings):
+    distances=[[0 for j in range(len(embeddings))] for i in range(len(embeddings))]
+    for i in range(len(embeddings)):
+        for j in range(len(embeddings)):
+            d1=angularDis(embeddings[i],embeddings[j])
+            d2=angularDis(embeddings[i],embeddings[j])
+            distances[i][j]=angularDis(embeddings[i],embeddings[j])
+            distances[j][i]=distances[i][j]
+    order=greedySearch(distances)
     return order
