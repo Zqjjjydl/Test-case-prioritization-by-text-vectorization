@@ -1,7 +1,0 @@
-BuildException.getMessage
-ContainsSelector.isSelected
-ContainsSelector.setCasesensitive
-ContainsSelector.setParameters
-ContainsSelector.setText
-Parameter.setName
-Parameter.setValue

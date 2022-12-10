@@ -1,7 +1,0 @@
-BuildException.getMessage
-FilenameSelector.isSelected
-FilenameSelector.setName
-FilenameSelector.setNegate
-FilenameSelector.setParameters
-Parameter.setName
-Parameter.setValue

@@ -1,0 +1,6 @@
+BuildException.endsWith
+BuildException.getLocation
+BuildException.getMessage
+BuildException.indexOf
+BuildException.startsWith
+BuildException.toString

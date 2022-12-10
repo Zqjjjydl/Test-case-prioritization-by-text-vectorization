@@ -1,3 +1,0 @@
-File.separatorChar
-JAXPUtils.getSystemId
-String.startsWith

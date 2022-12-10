@@ -1,2 +1,0 @@
-FileUtils.contentEquals
-FileUtils.newFileUtils

@@ -1,2 +1,0 @@
-String.endsWith
-String.startsWith

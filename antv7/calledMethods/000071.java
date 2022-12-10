@@ -1,2 +1,0 @@
-.indexOf
-project.getProperty

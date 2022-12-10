@@ -1,3 +1,4 @@
+import sys
 from collections import OrderedDict
 import random
 import time
@@ -95,8 +96,9 @@ def art_d(input_file):
     while len(U) > 0:
         iteration += 1
         if iteration % 100 == 0:
-            print("  Progress: {}%\r".format(
+            sys.stdout.write("  Progress: {}%\r".format(
                 round(100*iteration/total, 2)))
+            sys.stdout.flush()
 
         if len(C) == 0:
             C = generate(U)
@@ -161,8 +163,9 @@ def art_f(input_file):
     while len(U) > 0:
         iteration += 1
         if iteration % 100 == 0:
-            print("  Progress: {}%\r".format(
+            sys.stdout.write("  Progress: {}%\r".format(
                 round(100*iteration/total, 2)))
+            sys.stdout.flush()
 
         if len(C) == 0:
             C = generate(U)

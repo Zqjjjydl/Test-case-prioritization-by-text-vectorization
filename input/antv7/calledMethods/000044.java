@@ -1,0 +1,10 @@
+BuildException.getMessage
+FileList.getDir
+FileList.getFiles
+FileList.setDir
+FileList.setFiles
+FileList.setRefid
+Project.addReference
+Project.getBaseDir
+Project.resolveFile
+Project.setBasedir

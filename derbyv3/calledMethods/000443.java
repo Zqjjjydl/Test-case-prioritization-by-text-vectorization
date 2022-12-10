@@ -1,4 +1,0 @@
-BigDecimalHandler.BIGDECIMAL_REPRESENTATION
-BigDecimalHandler.representation
-System.out
-System.println

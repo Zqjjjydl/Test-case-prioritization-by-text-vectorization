@@ -1,0 +1,5 @@
+File.separatorChar
+PackageNameMapper.mapFileName
+PackageNameMapper.setFrom
+PackageNameMapper.setTo
+String.replace

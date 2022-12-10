@@ -1,9 +1,0 @@
-.equals
-ij.startJBMS
-jvm.getCommandLine
-jvm.getJvm
-NetworkServerControl.getTimeSlice
-System.getProperty
-System.out
-System.println
-TestUtil.getHostName

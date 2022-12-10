@@ -1,2 +1,0 @@
-ij.getPropertyArg
-ij.startJBMS

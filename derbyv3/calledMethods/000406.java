@@ -1,2 +1,0 @@
-SQLException.printStackTrace
-Throwable.printStackTrace

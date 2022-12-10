@@ -1,4 +1,0 @@
-FileUtils.contentEquals
-FileUtils.newFileUtils
-project.resolveFile
-String.endsWith
