@@ -22,7 +22,7 @@ cd whiteBox
 python whiteBox/prioritize.py <metric> <algorithm>
 ```
 
-To train a new CodeBERT ,    run:
+To train a new CodeBERT ,      run:
 
 ```
 sh ./training/run_unsup_example.sh
